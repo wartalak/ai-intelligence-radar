@@ -41,15 +41,19 @@ async def seed_sources():
     from app.database.connection import async_session_factory
 
     default_sources = [
-        {"name": "Twitter/X", "source_type": "twitter", "url": "https://twitter.com", "reliability": 0.6},
-        {"name": "YouTube", "source_type": "youtube", "url": "https://youtube.com", "reliability": 0.7},
+        # RSS feeds — names must EXACTLY match what RSSCollector uses as feed_name keys
         {"name": "OpenAI Blog", "source_type": "rss", "url": "https://openai.com/blog/rss.xml", "reliability": 0.95},
         {"name": "Anthropic Blog", "source_type": "rss", "url": "https://www.anthropic.com/feed", "reliability": 0.95},
-        {"name": "Google DeepMind Blog", "source_type": "rss", "url": "https://deepmind.google/blog/rss.xml", "reliability": 0.95},
-        {"name": "Meta AI Blog", "source_type": "rss", "url": "https://ai.meta.com/blog/rss/", "reliability": 0.9},
-        {"name": "NVIDIA AI Blog", "source_type": "rss", "url": "https://blogs.nvidia.com/feed/", "reliability": 0.9},
+        {"name": "Google DeepMind", "source_type": "rss", "url": "https://deepmind.google/blog/rss.xml", "reliability": 0.95},
+        {"name": "Meta AI", "source_type": "rss", "url": "https://ai.meta.com/blog/rss/", "reliability": 0.9},
+        {"name": "NVIDIA AI", "source_type": "rss", "url": "https://blogs.nvidia.com/feed/", "reliability": 0.9},
+        {"name": "Hugging Face Blog", "source_type": "rss", "url": "https://huggingface.co/blog/feed.xml", "reliability": 0.9},
+        {"name": "AI News (MIT)", "source_type": "rss", "url": "https://news.mit.edu/topic/artificial-intelligence2/feed", "reliability": 0.9},
+        # Other sources
         {"name": "arXiv", "source_type": "arxiv", "url": "https://arxiv.org", "reliability": 0.99},
         {"name": "GitHub Trending", "source_type": "github", "url": "https://github.com/trending", "reliability": 0.7},
+        {"name": "YouTube", "source_type": "youtube", "url": "https://youtube.com", "reliability": 0.7},
+        {"name": "Twitter/X", "source_type": "twitter", "url": "https://twitter.com", "reliability": 0.6},
     ]
 
     async with async_session_factory() as session:

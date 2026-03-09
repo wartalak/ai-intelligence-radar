@@ -1,6 +1,6 @@
 """
 Data processing pipeline:
-normalize → spam filter → detect language → generate embeddings → store → cluster
+normalize → spam filter → detect language → store → (optional) generate embeddings
 """
 
 import re
@@ -9,7 +9,6 @@ from typing import List, Dict, Any
 from datetime import datetime
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.services.embeddings import EmbeddingService
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,6 @@ logger = logging.getLogger(__name__)
 class DataPipeline:
     def __init__(self, session: AsyncSession):
         self.session = session
-        self.embedding_service = EmbeddingService()
 
     async def process_items(
         self, items: List[Dict[str, Any]], source_name: str
@@ -33,7 +31,7 @@ class DataPipeline:
         )
         row = result.first()
         if not row:
-            logger.error(f"Source '{source_name}' not found in DB")
+            logger.error(f"Source '{source_name}' not found in DB — skipping {len(items)} items")
             return 0
         source_id = row[0]
 
@@ -47,20 +45,10 @@ class DataPipeline:
                 if self._is_spam(item["body"]):
                     continue
 
-                # Step 3: Language detection
-                lang = self._detect_language(item["body"])
-                if lang not in ("en", "unknown"):
-                    continue  # keep only English for now
-
-                # Step 4: Insert content (skip duplicates)
-                content_id = await self._store_content(item, source_id, lang)
+                # Step 3: Insert content (skip duplicates)
+                content_id = await self._store_content(item, source_id)
                 if content_id is None:
-                    continue  # already exists
-
-                # Step 5: Generate and store embedding
-                embed_text = f"{item['title']} {item['body']}"
-                embedding = await self.embedding_service.generate(embed_text)
-                await self._store_embedding(content_id, embedding)
+                    continue  # already exists or error
 
                 processed += 1
             except Exception as e:
@@ -85,8 +73,6 @@ class DataPipeline:
         text_val = re.sub(r"\s+", " ", text_val).strip()
         # Remove URLs from body text (we keep them in the url field)
         text_val = re.sub(r"https?://\S+", "", text_val)
-        # Remove special chars (keep alphanumeric + basic punctuation)
-        text_val = re.sub(r"[^\w\s.,!?;:'\"-/()\[\]{}@#$%^&*+=<>]", "", text_val)
         return text_val.strip()
 
     # ── Step 2: Spam filter ──
@@ -104,22 +90,22 @@ class DataPipeline:
                 return True
         return False
 
-    # ── Step 3: Language detection ──
-    @staticmethod
-    def _detect_language(body: str) -> str:
-        try:
-            from langdetect import detect
-            return detect(body)
-        except Exception:
-            return "unknown"
-
-    # ── Step 4: Store content ──
+    # ── Step 3: Store content ──
     async def _store_content(
-        self, item: Dict[str, Any], source_id: int, language: str
+        self, item: Dict[str, Any], source_id: int
     ) -> int | None:
         """Insert content row. Returns content_id or None if duplicate."""
         try:
             import json
+
+            # Detect language if possible
+            lang = "en"
+            try:
+                from langdetect import detect
+                lang = detect(item["body"][:500])
+            except Exception:
+                pass
+
             result = await self.session.execute(
                 text("""
                     INSERT INTO content
@@ -136,12 +122,12 @@ class DataPipeline:
                     "source_id": source_id,
                     "external_id": item["external_id"],
                     "title": item["title"],
-                    "body": item["body"],
+                    "body": item["body"][:10000],  # limit body size
                     "url": item["url"],
                     "author": item["author"],
                     "published_at": item["published_at"],
                     "content_type": item["content_type"],
-                    "language": language,
+                    "language": lang,
                     "engagement": json.dumps(item.get("engagement", {})),
                     "metadata": json.dumps(item.get("metadata", {})),
                 },
@@ -151,20 +137,3 @@ class DataPipeline:
         except Exception as e:
             logger.error(f"Store content error: {e}")
             return None
-
-    # ── Step 5: Store embedding ──
-    async def _store_embedding(self, content_id: int, embedding: List[float]):
-        """Insert embedding vector for a content item."""
-        try:
-            vec_str = "[" + ",".join(str(v) for v in embedding) + "]"
-            await self.session.execute(
-                text("""
-                    INSERT INTO embeddings (content_id, embedding)
-                    VALUES (:content_id, CAST(:embedding AS vector))
-                    ON CONFLICT (content_id) DO NOTHING
-                """),
-                {"content_id": content_id, "embedding": vec_str},
-            )
-        except Exception as e:
-            logger.error(f"Store embedding error: {e}")
-
