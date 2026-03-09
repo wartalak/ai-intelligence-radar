@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* -- Core Palette -- */
+  --color-bg: #0a0a0f;
+  --color-surface: #12121a;
+  --color-surface-2: #1a1a28;
+  --color-border: #2a2a40;
+  --color-border-glow: #3b3b5c;
+  --color-text: #e4e4f0;
+  --color-text-muted: #8888a8;
+  --color-text-dim: #5555778c;
+
+  /* Accent colors */
+  --color-accent: #6c5ce7;
+  --color-accent-bright: #a29bfe;
+  --color-accent-glow: rgba(108, 92, 231, 0.25);
+  --color-accent-2: #00cec9;
+  --color-accent-2-glow: rgba(0, 206, 201, 0.2);
+  --color-accent-3: #fd79a8;
+  --color-accent-4: #fdcb6e;
+  --color-accent-5: #55efc4;
+
+  /* Status */
+  --color-success: #00b894;
+  --color-warning: #fdcb6e;
+  --color-danger: #e17055;
+
+  /* Gradients */
+  --gradient-hero: linear-gradient(135deg, #6c5ce7 0%, #00cec9 50%, #fd79a8 100%);
+  --gradient-card: linear-gradient(145deg, #12121a 0%, #1a1a28 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-glow); }
+
+/* Glass morphism utility */
+.glass {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+}
+
+.glass-hover:hover {
+  border-color: var(--color-border-glow);
+  box-shadow: 0 0 30px var(--color-accent-glow);
+}
+
+/* Card base */
+.card {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  border-color: var(--color-border-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--color-accent-glow);
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-2) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Glow pulse */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 15px var(--color-accent-glow); }
+  50% { box-shadow: 0 0 30px var(--color-accent-glow), 0 0 60px rgba(108, 92, 231, 0.1); }
+}
+
+.glow {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Fade-in animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-fade-in-delay-1 { animation-delay: 0.1s; opacity: 0; }
+.animate-fade-in-delay-2 { animation-delay: 0.2s; opacity: 0; }
+.animate-fade-in-delay-3 { animation-delay: 0.3s; opacity: 0; }
+.animate-fade-in-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.badge-purple { background: rgba(108,92,231,0.15); color: var(--color-accent-bright); }
+.badge-teal { background: rgba(0,206,201,0.15); color: var(--color-accent-2); }
+.badge-pink { background: rgba(253,121,168,0.15); color: var(--color-accent-3); }
+.badge-gold { background: rgba(253,203,110,0.15); color: var(--color-accent-4); }
+.badge-green { background: rgba(85,239,196,0.15); color: var(--color-accent-5); }
+
+/* Type icon colors */
+.type-tweet { color: #1da1f2; }
+.type-video { color: #ff0000; }
+.type-article { color: var(--color-accent-bright); }
+.type-paper { color: var(--color-accent-2); }
+.type-repo { color: #f1e05a; }
