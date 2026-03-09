@@ -13,9 +13,27 @@ from app.models.models import Source, Content, Embedding, Topic, TopicContent, T
 async def init_db():
     """Create pgvector extension and all tables."""
     async with engine.begin() as conn:
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        await conn.run_sync(Base.metadata.create_all)
-    print("✅ Database initialized with pgvector extension and all tables.")
+        has_vector = False
+        try:
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            has_vector = True
+            print("✅ pgvector extension enabled.")
+        except Exception as e:
+            print(f"⚠️ pgvector not available: {e}")
+
+        if has_vector:
+            await conn.run_sync(Base.metadata.create_all)
+        else:
+            # Create all tables except the ones that need pgvector (embeddings)
+            from app.models.models import Embedding
+            tables_to_create = [
+                t for t in Base.metadata.sorted_tables
+                if t.name != Embedding.__tablename__
+            ]
+            await conn.run_sync(
+                lambda sync_conn: Base.metadata.create_all(sync_conn, tables=tables_to_create)
+            )
+    print("✅ Database initialized.")
 
 
 async def seed_sources():
