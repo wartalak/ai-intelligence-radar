@@ -14,6 +14,17 @@ const SUGGESTIONS = [
   "RAG techniques",
 ];
 
+// Safely convert possibly object values to strings (Gemini sometimes returns objects)
+function str(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") {
+    if ("point" in v && "detail" in v)
+      return `${(v as { point: string }).point} — ${(v as { detail: string }).detail}`;
+    return JSON.stringify(v);
+  }
+  return String(v ?? "");
+}
+
 export function SearchAnalysis() {
   const [query, setQuery] = useState("");
   const { analysis, loading, error, analyze } = useTopicAnalysis();
@@ -123,10 +134,10 @@ export function SearchAnalysis() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              {analysis.title}
+              {str(analysis.title)}
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-              {analysis.overview}
+              {str(analysis.overview)}
             </p>
           </div>
 
@@ -150,8 +161,8 @@ export function SearchAnalysis() {
                   <ul className="space-y-2">
                     {items.map((item, i) => (
                       <li key={i}>
-                        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{item?.point || ""}</p>
-                        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item?.detail || ""}</p>
+                        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{str(item?.point)}</p>
+                        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{str(item?.detail)}</p>
                       </li>
                     ))}
                   </ul>
@@ -161,7 +172,7 @@ export function SearchAnalysis() {
           </div>
 
           {/* Sources */}
-          {analysis.sources && analysis.sources.length > 0 && (
+          {Array.isArray(analysis.sources) && analysis.sources.length > 0 && (
             <div className="card">
               <h4 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: "var(--color-text-muted)" }}>
                 📎 Sources
