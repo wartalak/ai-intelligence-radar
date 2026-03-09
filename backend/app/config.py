@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     EMBEDDING_DIMENSIONS: int = 1536
 
     # ── LLM ──
-    LLM_MODEL: str = "gemini-2.5-flash"
+    LLM_MODEL: str = "gemini-2.0-flash"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
