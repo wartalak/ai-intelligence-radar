@@ -54,6 +54,8 @@ export function HeroReport() {
 
   const sections = report?.sections || {};
 
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -62,7 +64,7 @@ export function HeroReport() {
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={{ color: "var(--color-text)" }}>
           Today in AI
         </h1>
-        <span className="badge badge-purple ml-2">{report?.date || "Today"}</span>
+        <span className="badge badge-purple ml-2">{today}</span>
       </div>
 
       {/* Report title + summary */}
@@ -75,10 +77,12 @@ export function HeroReport() {
             WebkitTextFillColor: "transparent",
           }}
         >
-          {report?.title || "AI Intelligence Report"}
+          {report?.title
+            ? report.title.replace(/\d{4}-\d{2}-\d{2}/, today)
+            : `AI Intelligence Report — ${today}`}
         </h2>
         <p className="text-base leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-          {report?.summary || "Generating today's intelligence report..."}
+          {report?.summary || "No data collected yet. Reports will be generated once content is ingested."}
         </p>
       </div>
 
