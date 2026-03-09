@@ -3,6 +3,7 @@
 import { HeroReport } from "@/components/HeroReport";
 import { SearchAnalysis } from "@/components/SearchAnalysis";
 import { TrendingTopics } from "@/components/TrendingTopics";
+import { TwitterFeed } from "@/components/TwitterFeed";
 import { ContentFeed } from "@/components/ContentFeed";
 import { ResearchPapers } from "@/components/ResearchPapers";
 import { TopVideos } from "@/components/TopVideos";
@@ -26,6 +27,11 @@ export default function Home() {
       {/* Trending Topics */}
       <section id="trends" className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <TrendingTopics />
+      </section>
+
+      {/* AI on X — Corporate Tweets */}
+      <section id="tweets" className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <TwitterFeed />
       </section>
 
       {/* Research Papers */}

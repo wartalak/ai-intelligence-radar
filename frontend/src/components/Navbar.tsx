@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: "Today", href: "#today" },
   { label: "Search", href: "#search" },
   { label: "Trends", href: "#trends" },
+  { label: "𝕏", href: "#tweets" },
   { label: "Research", href: "#research" },
   { label: "Videos", href: "#videos" },
   { label: "Feed", href: "#feed" },
