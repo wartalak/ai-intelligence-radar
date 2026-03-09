@@ -11,6 +11,7 @@ from app.database.init_db import init_db, seed_sources
 from app.api.reports import router as reports_router
 from app.api.trends import router as trends_router
 from app.api.content import router as content_router
+from app.api.admin import router as admin_router
 
 settings = get_settings()
 
@@ -43,6 +44,7 @@ app.add_middleware(
 app.include_router(reports_router, prefix="/api", tags=["Reports"])
 app.include_router(trends_router, prefix="/api", tags=["Trends"])
 app.include_router(content_router, prefix="/api", tags=["Content"])
+app.include_router(admin_router, prefix="/api", tags=["Admin"])
 
 
 @app.get("/health")

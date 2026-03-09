@@ -8,8 +8,20 @@ from app.config import get_settings
 
 settings = get_settings()
 
+
+def _fix_db_url(url: str) -> str:
+    """Convert Render's postgres:// to postgresql+asyncpg:// for asyncpg."""
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://") and "+asyncpg" not in url:
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
+
+_db_url = _fix_db_url(settings.DATABASE_URL)
+
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    _db_url,
     echo=settings.ENVIRONMENT == "development",
     pool_size=20,
     max_overflow=10,
@@ -32,7 +44,7 @@ async def create_fresh_session():
     the import-time loop).
     """
     fresh_engine = create_async_engine(
-        settings.DATABASE_URL,
+        _db_url,
         echo=False,
         pool_size=5,
         max_overflow=5,
