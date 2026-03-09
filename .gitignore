@@ -34,3 +34,6 @@ redis_data/
 # Python
 *.egg-info/
 .eggs/
+
+# Local Netlify folder
+.netlify
