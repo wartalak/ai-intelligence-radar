@@ -139,7 +139,8 @@ export function SearchAnalysis() {
               { key: "impact", label: "Market Impact", icon: "📊", color: "var(--color-accent-4)" },
               { key: "outlook", label: "Outlook", icon: "🔮", color: "var(--color-accent-5)" },
             ].map(({ key, label, icon, color }) => {
-              const items = (analysis as unknown as Record<string, unknown>)[key] as Array<{ point: string; detail: string }> | undefined;
+              const raw = (analysis as unknown as Record<string, unknown>)[key];
+              const items = Array.isArray(raw) ? raw as Array<{ point: string; detail: string }> : undefined;
               if (!items || items.length === 0) return null;
               return (
                 <div key={key} className="card" style={{ borderTop: `2px solid ${color}` }}>
@@ -149,8 +150,8 @@ export function SearchAnalysis() {
                   <ul className="space-y-2">
                     {items.map((item, i) => (
                       <li key={i}>
-                        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{item.point}</p>
-                        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item.detail}</p>
+                        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{item?.point || ""}</p>
+                        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item?.detail || ""}</p>
                       </li>
                     ))}
                   </ul>
